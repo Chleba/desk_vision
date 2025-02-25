@@ -49,8 +49,10 @@ pub struct DeskMessage {
     pub images: Option<ImagesStructured>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+// #[derive(Clone, Debug, PartialEq)]
+#[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone, PartialEq)]
 pub enum AgentEnum {
+    #[default]
     Chat,
     WebScrape,
     Images,

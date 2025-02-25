@@ -3,7 +3,6 @@ use crate::{
     utils::spawn,
 };
 use futures::TryFutureExt;
-use garde::external::compact_str::CompactStringExt;
 use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
