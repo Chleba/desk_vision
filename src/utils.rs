@@ -1,12 +1,16 @@
 use base64::Engine;
 use egui::Ui;
 use ollama_rs::generation::images::Image;
+use rust_search_fork::FilterExt;
+use rust_search_fork::SearchBuilder;
 use std::cmp;
 use std::fs;
 use std::future::Future;
 use std::path::Path;
+use std::path::PathBuf;
 use std::time::Duration;
 
+use crate::config::SUPPORTED_IMAGE_FORMATS;
 use crate::enums::ImageBase64Search;
 use crate::enums::ImageStructured;
 pub mod easing {
@@ -69,4 +73,25 @@ pub fn img_paths_to_base64(images: Vec<ImageStructured>) -> Vec<ImageBase64Searc
         }
     }
     base64_imgs
+}
+
+pub fn search_images_at_path(path: PathBuf) -> Vec<String> {
+    let p = path.to_string_lossy().to_string();
+    let search: Vec<String> = SearchBuilder::default()
+        .location(&p)
+        .custom_filter(|entry| {
+            let e = entry.metadata().unwrap();
+            if e.is_file() {
+                let path = entry.path();
+                if let Some(ext) = path.extension() {
+                    if let Some(e) = ext.to_str() {
+                        return SUPPORTED_IMAGE_FORMATS.contains(&e);
+                    }
+                }
+            }
+            false
+        })
+        .build()
+        .collect();
+    search
 }

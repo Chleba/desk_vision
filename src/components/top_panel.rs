@@ -51,8 +51,8 @@ impl TopPanel {
     }
 
     fn draw_left_side(&mut self, ui: &mut egui::Ui) {
-        let mut size = ui.available_size();
-        size.x /= 2.0;
+        // let mut size = ui.available_size();
+        // size.x /= 2.0;
         ui.vertical(|ui| {
             egui::Grid::new("left_grid").num_columns(2).show(ui, |ui| {
                 ui.label("Search images:");

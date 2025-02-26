@@ -1,7 +1,7 @@
 use tokio::sync::mpsc::UnboundedSender;
 
 use super::Component;
-use crate::{config::SUPPORTED_IMAGE_FORMTS, enums::BroadcastMsg};
+use crate::{config::SUPPORTED_IMAGE_FORMATS, enums::BroadcastMsg};
 
 pub struct TopMenu {
     action_tx: Option<UnboundedSender<BroadcastMsg>>,
@@ -12,7 +12,7 @@ impl TopMenu {
     pub fn new() -> Self {
         Self {
             action_tx: None,
-            formats_checks: vec![false; SUPPORTED_IMAGE_FORMTS.len()],
+            formats_checks: vec![false; SUPPORTED_IMAGE_FORMATS.len()],
         }
     }
 }
@@ -37,7 +37,7 @@ impl Component for TopMenu {
                     ui.label("Filter searched formats");
                     ui.separator();
                     for (i, checked) in self.formats_checks.iter_mut().enumerate() {
-                        ui.checkbox(checked, SUPPORTED_IMAGE_FORMTS[i]);
+                        ui.checkbox(checked, SUPPORTED_IMAGE_FORMATS[i]);
                     }
                 });
             });

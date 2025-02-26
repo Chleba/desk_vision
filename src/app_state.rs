@@ -7,7 +7,7 @@ use tokio::sync::mpsc::UnboundedSender;
 pub struct AppState {
     #[serde(skip)]
     action_tx: Option<UnboundedSender<BroadcastMsg>>,
-    #[serde(skip)]
+    // #[serde(skip)]
     pub ollama_state: OllamaState,
     pub directories: Vec<PathBuf>,
 }
@@ -35,8 +35,8 @@ impl AppState {
     }
 
     pub fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, APP_STATE_KEY, self);
         self.ollama_state.save(storage);
+        eframe::set_value(storage, APP_STATE_KEY, self);
     }
 
     pub fn update(&mut self, msg: BroadcastMsg) {

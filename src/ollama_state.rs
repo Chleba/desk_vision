@@ -19,9 +19,15 @@ static OLLAMA_STATE_KEY: &str = "ollama_state";
 impl OllamaState {
     pub fn new(cc: &eframe::CreationContext<'_>, url: String) -> Self {
         // -- get storage values
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, OLLAMA_STATE_KEY).unwrap_or_default();
-        }
+        // if let Some(storage) = cc.storage {
+        //     return eframe::get_value(storage, OLLAMA_STATE_KEY).unwrap_or_default();
+        // }
+
+        // if let Some(storage) = cc.storage {
+        //     let s = eframe::get_value(storage, OLLAMA_STATE_KEY).unwrap_or_default();
+        //     println!("{:?}", s);
+        //     return s;
+        // }
 
         Self {
             action_tx: None,
@@ -31,7 +37,7 @@ impl OllamaState {
     }
 
     pub fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, OLLAMA_STATE_KEY, self);
+        // eframe::set_value(storage, OLLAMA_STATE_KEY, self);
     }
 
     pub fn init(&mut self) {

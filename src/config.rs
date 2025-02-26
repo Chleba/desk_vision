@@ -1,4 +1,4 @@
-pub const SUPPORTED_IMAGE_FORMTS: [&str; 3] = ["png", "jpg", "jpeg"];
+pub const SUPPORTED_IMAGE_FORMATS: [&str; 3] = ["png", "jpg", "jpeg"];
 
 // const COLORS_SIGNAL: [Color; 7] = [
 //     Color::Red,
