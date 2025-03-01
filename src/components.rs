@@ -6,11 +6,8 @@ use tokio::sync::mpsc::UnboundedSender;
 
 use crate::{app_state::AppState, enums::BroadcastMsg};
 
-// pub mod agents_panel;
-// pub mod bottom_panel;
-// pub mod chat_input;
-// pub mod main_panel;
-// pub mod messages;
+pub mod file_loader;
+pub mod main_panel;
 pub mod ollama_settings;
 pub mod top_menu;
 pub mod top_panel;
@@ -35,4 +32,7 @@ pub trait Component: Any {
 
     #[allow(unused_variables)]
     fn update(&mut self, msg: BroadcastMsg) {}
+
+    #[allow(unused_variables)]
+    fn update_ctx(&mut self, msg: BroadcastMsg, ctx: &egui::Context) {}
 }

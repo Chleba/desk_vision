@@ -79,11 +79,15 @@ pub fn search_images_at_path(path: PathBuf) -> Vec<String> {
     let p = path.to_string_lossy().to_string();
     let search: Vec<String> = SearchBuilder::default()
         .location(&p)
+        .dirs(false)
         .custom_filter(|entry| {
             let e = entry.metadata().unwrap();
-            if e.is_file() {
+            // println!("{:?} - maslo entry on path", e);
+            if e.is_file() && !e.is_dir() {
                 let path = entry.path();
+                // println!("{:?} - path", path.to_string_lossy());
                 if let Some(ext) = path.extension() {
+                    // println!("{:?} = ext", ext);
                     if let Some(e) = ext.to_str() {
                         return SUPPORTED_IMAGE_FORMATS.contains(&e);
                     }

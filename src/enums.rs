@@ -1,3 +1,7 @@
+use std::path::PathBuf;
+
+use egui::TextureHandle;
+use image::DynamicImage;
 use ollama_rs::generation::{chat::ChatMessage, images::Image};
 use schemars::JsonSchema;
 use serde::Deserialize;
@@ -49,18 +53,34 @@ pub struct DeskMessage {
     pub images: Option<ImagesStructured>,
 }
 
-// #[derive(Clone, Debug, PartialEq)]
-#[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone, PartialEq)]
-pub enum AgentEnum {
-    #[default]
-    Chat,
-    WebScrape,
-    Images,
+#[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
+pub struct DirectoryFiles {
+    pub dir: String,
+    pub files: Vec<String>,
+}
+
+pub struct ImageFileItems {
+    pub dir: String,
+    // pub images: Vec<DynamicImage>,
+    pub images: Vec<TextureHandle>,
+}
+
+#[derive(Clone)]
+pub struct DirectoryImage {
+    pub file: String,
+    pub texture: TextureHandle,
+}
+
+#[derive(Clone)]
+pub struct DirectoryImages {
+    pub dir: PathBuf,
+    pub images: Vec<DirectoryImage>,
 }
 
 // #[derive(Clone, Debug, PartialEq)]
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum BroadcastMsg {
+    // START -- Ollama settings & state
     OllamaRunning(Result<(), String>),
     GetOllamaRunning,
 
@@ -73,13 +93,11 @@ pub enum BroadcastMsg {
     GetOllamaModels,
     OllamaModels(Vec<OllamaModel>),
 
-    SelectAgent(AgentEnum),
-    SelectAgentModel(OllamaModel),
-
-    SendUserMessage(ChatMessage),
-    GetChatSubReponse(ChatMessage),
-    GetChatReponse(ChatMessage),
-    GetStructuredOutput(String),
+    // END -- Ollama settings & state
+    PickedDirectory(PathBuf),
+    DirectoryFiles(PathBuf, Vec<String>),
+    DirectoryImages(DirectoryImages),
+    ShowImages,
 
     GetFoundImages(ImagesStructured),
     GetDescriptionImageSearch(String, ChatMessage),

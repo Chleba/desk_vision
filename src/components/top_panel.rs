@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 
 use super::ollama_settings::OllamaSettings;
 use super::Component;
+use crate::app_state;
 use crate::{app_state::AppState, enums::BroadcastMsg};
 use egui::{Align, Color32, Grid, RichText, ScrollArea};
 use tokio::sync::mpsc::UnboundedSender;
@@ -30,11 +31,15 @@ impl TopPanel {
 
     fn pick_dir(&mut self, path: PathBuf) {
         if !self.picked_directories.contains(&path) {
-            self.picked_directories.push(path);
+            self.picked_directories.push(path.clone());
             {
-                if let Some(app_state) = self.app_state.clone() {
+                if let Some(ref app_state) = self.app_state {
                     app_state.lock().unwrap().directories = self.picked_directories.clone();
                 }
+            }
+
+            if let Some(action_tx) = self.action_tx.clone() {
+                let _ = action_tx.send(BroadcastMsg::PickedDirectory(path));
             }
         }
     }
@@ -43,16 +48,16 @@ impl TopPanel {
         if self.picked_directories.contains(&path) {
             self.picked_directories.retain(|p| *p != path);
             {
-                if let Some(app_state) = self.app_state.clone() {
-                    app_state.lock().unwrap().directories = self.picked_directories.clone();
+                if let Some(ref app_state) = self.app_state {
+                    app_state.lock().unwrap().remove_directory(path);
+
+                    // app_state.lock().unwrap().directories = self.picked_directories.clone();
                 }
             }
         }
     }
 
     fn draw_left_side(&mut self, ui: &mut egui::Ui) {
-        // let mut size = ui.available_size();
-        // size.x /= 2.0;
         ui.vertical(|ui| {
             egui::Grid::new("left_grid").num_columns(2).show(ui, |ui| {
                 ui.label("Search images:");
@@ -79,26 +84,23 @@ impl TopPanel {
             });
 
             ui.label("Added directories:");
-            ScrollArea::vertical()
-                // .max_width(size.x / 2.0)
-                .max_width(420.0)
-                .show(ui, |ui| {
-                    Grid::new("dir_grid")
-                        .striped(true)
-                        .num_columns(2)
-                        .min_col_width(50.0)
-                        .max_col_width(340.0)
-                        .show(ui, |ui| {
-                            for dir in self.picked_directories.clone().iter() {
-                                ui.small(dir.to_string_lossy());
-                                if ui.button("delete").clicked() {
-                                    self.remove_directory(dir.clone());
-                                    println!("delete: {}", dir.to_string_lossy());
-                                }
-                                ui.end_row();
+            ScrollArea::vertical().max_width(420.0).show(ui, |ui| {
+                Grid::new("dir_grid")
+                    .striped(true)
+                    .num_columns(2)
+                    .min_col_width(50.0)
+                    .max_col_width(340.0)
+                    .show(ui, |ui| {
+                        for dir in self.picked_directories.clone().iter() {
+                            ui.small(dir.to_string_lossy());
+                            if ui.button("delete").clicked() {
+                                self.remove_directory(dir.clone());
+                                println!("delete: {}", dir.to_string_lossy());
                             }
-                        });
-                });
+                            ui.end_row();
+                        }
+                    });
+            });
         });
     }
 

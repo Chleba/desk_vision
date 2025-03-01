@@ -2,7 +2,10 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
     app_state::AppState,
-    components::{top_menu::TopMenu, top_panel::TopPanel, Component},
+    components::{
+        file_loader::FileLoader, main_panel::MainPanel, top_menu::TopMenu, top_panel::TopPanel,
+        Component,
+    },
     enums::BroadcastMsg,
 };
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
@@ -22,9 +25,8 @@ impl DeskApp {
 
         let top_menu = TopMenu::new();
         let top_panel = TopPanel::new();
-        // let main_panel = MainPanel::new();
-        // let agent_panel = AgentPanel::new();
-        // let bottom_panel = ChatBottomPanel::new();
+        let main_panel = MainPanel::new();
+        let file_loader = FileLoader::new();
 
         Self {
             action_rx,
@@ -33,10 +35,8 @@ impl DeskApp {
             components: vec![
                 Box::new(top_menu),
                 Box::new(top_panel),
-                // Box::new(agent_panel),
-                // -- add bottom before center for correct scrollview height
-                // Box::new(bottom_panel),
-                // Box::new(main_panel),
+                Box::new(main_panel),
+                Box::new(file_loader),
             ],
         }
     }
@@ -94,6 +94,7 @@ impl eframe::App for DeskApp {
             }
             for component in self.components.iter_mut() {
                 component.update(msg.clone());
+                component.update_ctx(msg.clone(), ctx);
             }
         }
 
