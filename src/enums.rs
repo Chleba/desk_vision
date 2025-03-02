@@ -95,6 +95,7 @@ pub enum BroadcastMsg {
 
     // END -- Ollama settings & state
     PickedDirectory(PathBuf),
+    RemovedDirectory(PathBuf),
     DirectoryFiles(PathBuf, Vec<String>),
     DirectoryImages(DirectoryImages),
     ShowImages,

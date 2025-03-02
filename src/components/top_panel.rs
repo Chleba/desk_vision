@@ -49,9 +49,11 @@ impl TopPanel {
             self.picked_directories.retain(|p| *p != path);
             {
                 if let Some(ref app_state) = self.app_state {
-                    app_state.lock().unwrap().remove_directory(path);
+                    app_state.lock().unwrap().remove_directory(path.clone());
+                }
 
-                    // app_state.lock().unwrap().directories = self.picked_directories.clone();
+                if let Some(action_tx) = self.action_tx.clone() {
+                    let _ = action_tx.send(BroadcastMsg::RemovedDirectory(path));
                 }
             }
         }
@@ -60,19 +62,19 @@ impl TopPanel {
     fn draw_left_side(&mut self, ui: &mut egui::Ui) {
         ui.vertical(|ui| {
             egui::Grid::new("left_grid").num_columns(2).show(ui, |ui| {
-                ui.label("Search images:");
-                // -- search input
-                let resp = ui.add(
-                    egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
-                );
-                if resp.has_focus()
-                    && ui.input(|i| i.key_pressed(egui::Key::Enter) && i.modifiers.is_none())
-                {
-                    // self.send_user_msg(self.input_text.clone());
-                    // self.input_text = String::new();
-                }
-
-                ui.end_row();
+                // ui.label("Search images:");
+                // // -- search input
+                // let resp = ui.add(
+                //     egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
+                // );
+                // if resp.has_focus()
+                //     && ui.input(|i| i.key_pressed(egui::Key::Enter) && i.modifiers.is_none())
+                // {
+                //     // self.send_user_msg(self.input_text.clone());
+                //     // self.input_text = String::new();
+                // }
+                //
+                // ui.end_row();
 
                 // -- directory picker
                 ui.label("Add new folder:");

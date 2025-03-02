@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use eframe::egui_glow;
 use egui::TextureOptions;
 use thumbnails::Thumbnailer;
 use tokio::sync::mpsc::UnboundedSender;
@@ -33,32 +34,32 @@ impl FileLoader {
             }
         }
 
-        println!("{} - DIR FILES", dir_files.len());
-
+        let ctx = cc.egui_ctx.clone();
         for dir in dir_files.iter() {
-            self.create_thumbnails(dir, cc);
+            self.create_thumbnails(dir, ctx.clone());
         }
     }
 
-    fn create_thumbnails(&mut self, dir_files: &DirectoryFiles, cc: &eframe::CreationContext<'_>) {
+    // fn create_thumbnails(&mut self, dir_files: &DirectoryFiles, cc: &eframe::CreationContext<'_>) {
+    fn create_thumbnails(&mut self, dir_files: &DirectoryFiles, ctx: egui::Context) {
         let path = PathBuf::from(dir_files.dir.clone());
         let files = dir_files.files.clone();
         let thumbnailer = Thumbnailer::new(160, 160);
-        let ctx = cc.egui_ctx.clone();
+        // let ctx = cc.egui_ctx.clone();
 
         let mut dir_imgs = vec![];
         for file in files.iter() {
             let thumb = thumbnailer.get(file).unwrap();
 
-            let img = egui::ColorImage::from_rgb(
+            println!("{} - {} = img w,h", thumb.width(), thumb.height());
+
+            let rgba = thumb.to_rgba8();
+            let img = egui::ColorImage::from_rgba_unmultiplied(
                 [thumb.width() as usize, thumb.height() as usize],
-                thumb.as_bytes(),
+                rgba.as_raw(),
             );
 
-            // let img_buf = thumb.to_rgb8();
-            // let img = egui::ColorImage::from_rgb([160, 160], &img_buf);
             let texture = ctx.load_texture(file, img, TextureOptions::default());
-            //
             let dir_img = DirectoryImage {
                 file: file.to_string(),
                 texture,
@@ -72,10 +73,7 @@ impl FileLoader {
             images: dir_imgs,
         };
 
-        println!("SEND DIR IMAGES THUMBNAILS ---- ");
-
         if let Some(action_tx) = self.action_tx.clone() {
-            // let _ = action_tx.send(BroadcastMsg::DirectoryFiles(path, files));
             let _ = action_tx.send(BroadcastMsg::DirectoryImages(dir_obj));
         }
     }
@@ -83,8 +81,16 @@ impl FileLoader {
     fn search_images_on_path(&mut self, path: PathBuf, ctx: &egui::Context) {
         let files = search_images_at_path(path.clone());
         if let Some(action_tx) = self.action_tx.clone() {
-            let _ = action_tx.send(BroadcastMsg::DirectoryFiles(path, files));
+            let _ = action_tx.send(BroadcastMsg::DirectoryFiles(path.clone(), files.clone()));
         }
+
+        self.create_thumbnails(
+            &DirectoryFiles {
+                dir: path.to_string_lossy().to_string(),
+                files,
+            },
+            ctx.clone(),
+        );
     }
 }
 
@@ -94,7 +100,6 @@ impl Component for FileLoader {
     }
 
     fn init(&mut self, cc: &eframe::CreationContext<'_>) {
-        println!("INIT FILE LOADER ---- ");
         self.init_thumbnails(cc);
     }
 
@@ -112,84 +117,3 @@ impl Component for FileLoader {
         self.action_tx = Some(action_tx);
     }
 }
-
-// use std::path::PathBuf;
-//
-// use egui::{
-//     epaint::{tessellator::path, textures},
-//     TextureOptions,
-// };
-// use thumbnails::Thumbnailer;
-// use tokio::sync::mpsc::UnboundedSender;
-//
-// use super::Component;
-// use crate::{
-//     config::SUPPORTED_IMAGE_FORMATS,
-//     enums::{BroadcastMsg, DirectoryImage, DirectoryImages},
-//     utils::search_images_at_path,
-// };
-//
-// pub struct FileLoader {
-//     action_tx: Option<UnboundedSender<BroadcastMsg>>,
-// }
-//
-// impl FileLoader {
-//     pub fn new() -> Self {
-//         Self { action_tx: None }
-//     }
-//
-//     fn search_images_on_path(&mut self, path: PathBuf, ctx: &egui::Context) {
-//         let files = search_images_at_path(path.clone());
-//
-//         // let thumbnailer = Thumbnailer::new(160, 160);
-//         //
-//         // let mut dir_imgs = vec![];
-//         // for file in files.iter() {
-//         //     let thumb = thumbnailer.get(file).unwrap();
-//         //     // thumbnails.push(thumb.clone());
-//         //
-//         //     let img_buf = thumb.to_rgb8();
-//         //     let img = egui::ColorImage::from_rgb([160, 160], &img_buf);
-//         //     let texture = ctx.load_texture(file, img, TextureOptions::default());
-//         //
-//         //     let dir_img = DirectoryImage {
-//         //         file: file.to_string(),
-//         //         texture,
-//         //     };
-//         //
-//         //     dir_imgs.push(dir_img);
-//         // }
-//         //
-//         // let dir_obj = DirectoryImages {
-//         //     dir: path,
-//         //     images: dir_imgs,
-//         // };
-//         //
-//         if let Some(action_tx) = self.action_tx.clone() {
-//             let _ = action_tx.send(BroadcastMsg::DirectoryFiles(path, files));
-//             // let _ = action_tx.send(BroadcastMsg::DirectoryImages(dir_obj));
-//         }
-//     }
-// }
-//
-// impl Component for FileLoader {
-//     fn as_any(&self) -> &dyn std::any::Any {
-//         self
-//     }
-//
-//     fn update_ctx(&mut self, msg: BroadcastMsg, ctx: &egui::Context) {
-//         match msg {
-//             BroadcastMsg::PickedDirectory(path) => {
-//                 self.search_images_on_path(path, ctx);
-//             }
-//             BroadcastMsg::OllamaModels(models) => {
-//                 // self.models = models;
-//             }
-//             _ => {}
-//         }
-//     }
-//
-//     fn register_tx(&mut self, action_tx: UnboundedSender<BroadcastMsg>) {
-//         self.action_tx = Some(action_tx);
-//     }
-// }
