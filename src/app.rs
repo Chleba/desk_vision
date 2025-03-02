@@ -41,18 +41,19 @@ impl DeskApp {
         }
     }
 
-    pub fn init(&mut self) {
-        self.init_components();
+    pub fn init(&mut self, cc: &eframe::CreationContext<'_>) {
+        // self.init_components(cc);
         self.register_tx();
         self.register_app_state();
         {
             self.app_state.lock().unwrap().init();
         }
+        self.init_components(cc);
     }
 
-    fn init_components(&mut self) {
+    fn init_components(&mut self, cc: &eframe::CreationContext<'_>) {
         for component in self.components.iter_mut() {
-            component.init();
+            component.init(cc);
         }
     }
 
@@ -64,7 +65,6 @@ impl DeskApp {
 
     fn register_tx(&mut self) {
         let action_tx = &self.action_tx;
-
         {
             self.app_state
                 .lock()

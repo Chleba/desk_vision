@@ -13,7 +13,8 @@ pub mod top_menu;
 pub mod top_panel;
 
 pub trait Component: Any {
-    fn init(&mut self) {}
+    #[allow(unused_variables)]
+    fn init(&mut self, cc: &eframe::CreationContext<'_>) {}
 
     #[allow(dead_code)]
     fn as_any(&self) -> &dyn Any;

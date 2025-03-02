@@ -41,7 +41,7 @@ async fn main() {
 
             // -- app
             let mut desk_app = desk_imager::DeskApp::new(cc);
-            desk_app.init();
+            desk_app.init(cc);
 
             Ok(Box::new(desk_app))
         }),

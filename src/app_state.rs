@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    enums::{BroadcastMsg, DirectoryFiles, DirectoryImages},
+    enums::{BroadcastMsg, DirectoryFiles},
     ollama_state::OllamaState,
 };
 use tokio::sync::mpsc::UnboundedSender;
@@ -23,7 +23,7 @@ impl AppState {
         // -- get storage values
         if let Some(storage) = cc.storage {
             let s = eframe::get_value(storage, APP_STATE_KEY).unwrap_or_default();
-            println!("{:?}", s);
+            // println!("{:?}", s);
             return s;
         }
 
@@ -53,7 +53,6 @@ impl AppState {
 
     fn save_files_from_dir(&mut self, path: PathBuf, files: Vec<String>) {
         let dir = path.to_string_lossy().to_string();
-
         if self.dir_files.iter().all(|item| item.dir != dir) {
             let d_files = DirectoryFiles { dir, files };
             self.dir_files.push(d_files);
@@ -71,7 +70,6 @@ impl AppState {
             BroadcastMsg::DirectoryFiles(path, files) => {
                 self.save_files_from_dir(path, files);
             }
-            // BroadcastMsg::DirectoryImages(dir_imgs) => {}
             BroadcastMsg::PickedDirectory(dir) => {
                 // println!("{} - dir", dir.to_string_lossy());
             }

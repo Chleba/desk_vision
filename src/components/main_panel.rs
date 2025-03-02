@@ -1,7 +1,7 @@
 use super::Component;
 use crate::{
     app_state::{self, AppState},
-    enums::{BroadcastMsg, DirectoryFiles, ImageFileItems},
+    enums::{BroadcastMsg, DirectoryImages},
 };
 use egui::{CollapsingHeader, Color32, ScrollArea, Sense, Vec2};
 use std::sync::{Arc, Mutex};
@@ -11,7 +11,7 @@ use tokio::sync::mpsc::UnboundedSender;
 pub struct MainPanel {
     action_tx: Option<UnboundedSender<BroadcastMsg>>,
     app_state: Option<Arc<Mutex<AppState>>>,
-    dir_files: Vec<ImageFileItems>,
+    dir_images: Vec<DirectoryImages>,
 }
 
 impl MainPanel {
@@ -19,7 +19,18 @@ impl MainPanel {
         Self {
             action_tx: None,
             app_state: None,
-            dir_files: vec![],
+            dir_images: vec![],
+        }
+    }
+
+    fn save_thumbnails(&mut self, dir_images: DirectoryImages) {
+        println!("SAVE THUMBNAILS --- ");
+        if self
+            .dir_images
+            .iter()
+            .all(|item| item.dir != dir_images.dir)
+        {
+            self.dir_images.push(dir_images);
         }
     }
 
@@ -54,13 +65,27 @@ impl MainPanel {
         // }
     }
 
-    // fn render_dir_images(&mut self, dir: DirectoryFiles, ui: &mut egui::Ui) {
-    fn render_dir_images(&mut self, dir: ImageFileItems, ui: &mut egui::Ui) {
-        // println!("{:?} - rendering dir", dir);
-
-        CollapsingHeader::new(dir.dir).show(ui, |ui| {
+    fn render_dir_images(&mut self, dir: DirectoryImages, ui: &mut egui::Ui) {
+        CollapsingHeader::new(dir.dir.to_string_lossy()).show(ui, |ui| {
             ui.horizontal_wrapped(|ui| {
+                println!("{} - dir images ......", dir.images.len());
                 for image in dir.images {
+                    let s_text =
+                        egui::load::SizedTexture::new(image.texture.id(), egui::vec2(160.0, 160.0));
+
+                    let resp = ui.add(
+                        egui::Image::from_texture(s_text)
+                            .fit_to_exact_size(Vec2::new(160.0, 160.0))
+                            .bg_fill(Color32::from_rgb(33, 33, 33))
+                            // .max_width(440.0)
+                            .sense(Sense::click())
+                            .rounding(6.0),
+                    );
+                    if resp.clicked() {
+                        println!("open files {}", image.file);
+                        let _ = open::that(image.file);
+                    }
+
                     // let img = image.to_rgb8();
 
                     // let resp = ui.add(
@@ -75,8 +100,6 @@ impl MainPanel {
                     //     println!("open files {}", image);
                     //     let _ = open::that(image);
                     // }
-
-                    // if let Ok(img) = image
 
                     // let resp = ui.add(
                     //     egui::Image::from(image)
@@ -127,8 +150,18 @@ impl Component for MainPanel {
 
     fn update(&mut self, msg: BroadcastMsg) {
         // --
-        if let BroadcastMsg::ShowImages = msg {
-            self.show_images();
+        // if let BroadcastMsg::ShowImages = msg {
+        //     self.show_images();
+        // }
+
+        match msg {
+            BroadcastMsg::ShowImages => {
+                // self.show_images();
+            }
+            BroadcastMsg::DirectoryImages(dir_file) => {
+                self.save_thumbnails(dir_file);
+            }
+            _ => {}
         }
     }
 
@@ -138,16 +171,10 @@ impl Component for MainPanel {
 
     fn render(&mut self, ctx: &egui::Context) {
         // ctx.request_repaint_after_secs(1.0);
-        //
 
-        // let mut dir_files = vec![];
-        // {
-        //     if let Some(app_state) = self.app_state.clone() {
-        //         dir_files = app_state.lock().unwrap().dir_files.clone();
-        //     }
-        // }
+        let images = self.dir_images.clone();
 
-        let dir_files = egui::CentralPanel::default().show(ctx, |ui| {
+        egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered_justified(|ui| {
                 egui::Frame::default().show(ui, |ui| {
                     ScrollArea::vertical()
@@ -155,10 +182,9 @@ impl Component for MainPanel {
                         .auto_shrink([false, false])
                         // .stick_to_bottom(true)
                         .show(ui, |ui| {
-                            for dir in self.dir_files.iter() {
-                                // self.render_dir_images(dir.clone(), ui);
+                            for dir in images.iter() {
+                                self.render_dir_images(dir.clone(), ui);
                             }
-                            // self.messages.ui(ui);
                         });
                 });
             });

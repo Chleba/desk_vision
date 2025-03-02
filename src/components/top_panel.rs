@@ -143,8 +143,8 @@ impl Component for TopPanel {
         self
     }
 
-    fn init(&mut self) {
-        self.ollama_button.init();
+    fn init(&mut self, cc: &eframe::CreationContext<'_>) {
+        self.ollama_button.init(cc);
     }
 
     fn update(&mut self, msg: BroadcastMsg) {

@@ -53,7 +53,7 @@ impl Component for OllamaSettings {
         self
     }
 
-    fn init(&mut self) {
+    fn init(&mut self, _cc: &eframe::CreationContext<'_>) {
         spawn(Self::period_ollama_status(self.action_tx.clone()));
     }
 
