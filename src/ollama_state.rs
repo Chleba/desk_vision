@@ -46,9 +46,13 @@ impl OllamaState {
     }
 
     pub fn get_vision_models(&self) -> Vec<OllamaModel> {
+        // let models = self.models.iter().filter(|m| m.details.families.)
+
         let mut models = vec![];
         for m in self.models.clone() {
-            if m.details.families.contains(&"clip".to_string()) {
+            if m.details.families.contains(&"clip".to_string())
+                || m.details.families.contains(&"mllama".to_string())
+            {
                 models.push(m);
             }
         }

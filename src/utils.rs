@@ -75,6 +75,19 @@ pub fn img_paths_to_base64(images: Vec<ImageStructured>) -> Vec<ImageBase64Searc
     base64_imgs
 }
 
+pub fn img_path_to_base64(img: String) -> Option<ImageBase64Search> {
+    let path = Path::new(&img);
+    let bytes = fs::read(path);
+    if let Ok(img_bytes) = bytes {
+        let b64_img = base64::engine::general_purpose::STANDARD.encode(&img_bytes);
+        return Some(ImageBase64Search {
+            base64: Image::from_base64(b64_img),
+            path: img.to_string(),
+        });
+    }
+    None
+}
+
 pub fn search_images_at_path(path: PathBuf) -> Vec<String> {
     let p = path.to_string_lossy().to_string();
     let search: Vec<String> = SearchBuilder::default()

@@ -54,13 +54,17 @@ impl AppState {
     fn save_files_from_dir(&mut self, path: PathBuf, files: Vec<String>) {
         let dir = path.to_string_lossy().to_string();
         if self.dir_files.iter().all(|item| item.dir != dir) {
-            let d_files = DirectoryFiles { dir, files };
+            let d_files = DirectoryFiles {
+                dir,
+                files,
+                files_with_labels: vec![],
+            };
             self.dir_files.push(d_files);
         }
+    }
 
-        // if let Some(action_tx) = self.action_tx.clone() {
-        //     let _ = action_tx.send(BroadcastMsg::ShowImages);
-        // }
+    fn add_labels_to_file(&mut self, file: String, labels: String) {
+        println!("File: {}, labels: {}", file, labels);
     }
 
     pub fn update(&mut self, msg: BroadcastMsg) {
@@ -70,8 +74,8 @@ impl AppState {
             BroadcastMsg::DirectoryFiles(path, files) => {
                 self.save_files_from_dir(path, files);
             }
-            BroadcastMsg::PickedDirectory(dir) => {
-                // println!("{} - dir", dir.to_string_lossy());
+            BroadcastMsg::GetLabelsForImage(file, labels) => {
+                self.add_labels_to_file(file, labels);
             }
             _ => {}
         }

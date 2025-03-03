@@ -3,7 +3,6 @@ use std::sync::{Arc, Mutex};
 
 use super::ollama_settings::OllamaSettings;
 use super::Component;
-use crate::app_state;
 use crate::{app_state::AppState, enums::BroadcastMsg};
 use egui::{Align, Color32, Grid, RichText, ScrollArea};
 use tokio::sync::mpsc::UnboundedSender;
@@ -62,19 +61,19 @@ impl TopPanel {
     fn draw_left_side(&mut self, ui: &mut egui::Ui) {
         ui.vertical(|ui| {
             egui::Grid::new("left_grid").num_columns(2).show(ui, |ui| {
-                // ui.label("Search images:");
-                // // -- search input
-                // let resp = ui.add(
-                //     egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
-                // );
-                // if resp.has_focus()
-                //     && ui.input(|i| i.key_pressed(egui::Key::Enter) && i.modifiers.is_none())
-                // {
-                //     // self.send_user_msg(self.input_text.clone());
-                //     // self.input_text = String::new();
-                // }
-                //
-                // ui.end_row();
+                ui.label("Search images:");
+                // -- search input
+                let resp = ui.add(
+                    egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
+                );
+                if resp.has_focus()
+                    && ui.input(|i| i.key_pressed(egui::Key::Enter) && i.modifiers.is_none())
+                {
+                    // self.send_user_msg(self.input_text.clone());
+                    // self.input_text = String::new();
+                }
+
+                ui.end_row();
 
                 // -- directory picker
                 ui.label("Add new folder:");
@@ -119,6 +118,12 @@ impl TopPanel {
             });
         });
 
+        if ui.button("Start labeling").clicked() {
+            if let Some(action_tx) = self.action_tx.clone() {
+                let _ = action_tx.send(BroadcastMsg::StartLabeling);
+            }
+        }
+
         // // ui.vertical(|ui| {
         // let half_w = ui.available_width() / 2.0;
         // egui::Grid::new("right_grid")
@@ -135,8 +140,8 @@ impl TopPanel {
         //     });
         // // });
 
-        ui.label("- Searching for images");
-        ui.label("- Labeling images");
+        // ui.label("- Searching for images");
+        // ui.label("- Labeling images");
     }
 }
 

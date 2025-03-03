@@ -7,6 +7,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use crate::{app_state::AppState, enums::BroadcastMsg};
 
 pub mod file_loader;
+pub mod labels;
 pub mod main_panel;
 pub mod ollama_settings;
 pub mod top_menu;
@@ -36,4 +37,16 @@ pub trait Component: Any {
 
     #[allow(unused_variables)]
     fn update_ctx(&mut self, msg: BroadcastMsg, ctx: &egui::Context) {}
+
+    fn get_ollama_url(&mut self, app_state: Option<Arc<Mutex<AppState>>>) -> (String, u16) {
+        if let Some(state) = app_state.clone() {
+            let url = state.lock().unwrap().ollama_state.url.clone();
+            if let Some((base_url, port)) = url.rsplit_once(':') {
+                if let Ok(port_num) = port.parse::<u16>() {
+                    return (base_url.to_string(), port_num);
+                }
+            }
+        }
+        ("http://localhost/".to_string(), 11343)
+    }
 }

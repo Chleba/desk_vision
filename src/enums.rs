@@ -47,22 +47,17 @@ pub struct ImagesStructured {
     pub images: Vec<ImageStructured>,
 }
 
-#[derive(Debug, Clone)]
-pub struct DeskMessage {
-    pub chat_message: Option<ChatMessage>,
-    pub images: Option<ImagesStructured>,
-}
-
 #[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
 pub struct DirectoryFiles {
     pub dir: String,
     pub files: Vec<String>,
+    pub files_with_labels: Vec<FileWithLabel>,
 }
 
-pub struct ImageFileItems {
-    pub dir: String,
-    // pub images: Vec<DynamicImage>,
-    pub images: Vec<TextureHandle>,
+#[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
+pub struct FileWithLabel {
+    pub file: String,
+    pub labels: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -98,12 +93,14 @@ pub enum BroadcastMsg {
     RemovedDirectory(PathBuf),
     DirectoryFiles(PathBuf, Vec<String>),
     DirectoryImages(DirectoryImages),
-    ShowImages,
 
-    GetFoundImages(ImagesStructured),
-    GetDescriptionImageSearch(String, ChatMessage),
-
-    GetRephraseImageSearchPrompt(String),
-    GetVisionSeachResult(String, String, ImageBase64Search),
-    FinishedImageSearch,
+    StartLabeling,
+    GetLabelsForImage(String, String),
+    FinishLabeling,
+    // GetFoundImages(ImagesStructured),
+    // GetDescriptionImageSearch(String, ChatMessage),
+    //
+    // GetRephraseImageSearchPrompt(String),
+    // GetVisionSeachResult(String, String, ImageBase64Search),
+    // FinishedImageSearch,
 }

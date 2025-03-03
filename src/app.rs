@@ -3,8 +3,8 @@ use std::sync::{Arc, Mutex};
 use crate::{
     app_state::AppState,
     components::{
-        file_loader::FileLoader, main_panel::MainPanel, top_menu::TopMenu, top_panel::TopPanel,
-        Component,
+        file_loader::FileLoader, labels::Labeler, main_panel::MainPanel, top_menu::TopMenu,
+        top_panel::TopPanel, Component,
     },
     enums::BroadcastMsg,
 };
@@ -27,6 +27,7 @@ impl DeskApp {
         let top_panel = TopPanel::new();
         let main_panel = MainPanel::new();
         let file_loader = FileLoader::new();
+        let labeler = Labeler::new();
 
         Self {
             action_rx,
@@ -37,6 +38,7 @@ impl DeskApp {
                 Box::new(top_panel),
                 Box::new(main_panel),
                 Box::new(file_loader),
+                Box::new(labeler),
             ],
         }
     }

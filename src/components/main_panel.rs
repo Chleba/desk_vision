@@ -5,7 +5,7 @@ use crate::{
 };
 use egui::{CollapsingHeader, Color32, ScrollArea, Sense, Vec2};
 use std::{
-    path::{self, PathBuf},
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
 use tokio::sync::mpsc::UnboundedSender;
