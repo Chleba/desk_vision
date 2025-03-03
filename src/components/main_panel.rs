@@ -52,8 +52,6 @@ impl MainPanel {
             .map(String::from)
             .collect();
 
-        println!("{:?} - search labels", l_labels);
-
         let mut imgs = vec![];
 
         for dir in self.dir_images.iter() {
@@ -66,19 +64,11 @@ impl MainPanel {
                     .filter(|f| l_labels.iter().any(|s| f.contains(s)))
                     .collect();
 
-                println!("{:?} same labels", common);
-
                 if !common.is_empty() {
                     imgs.push(img.clone());
                 }
-
-                // if l_labels.iter().any(|s| labels.contains(s)) {
-                //     imgs.push(img.clone());
-                // }
             }
         }
-
-        println!("{:?}", imgs.len());
 
         self.found_images = imgs;
     }
@@ -94,8 +84,6 @@ impl MainPanel {
                             image.texture.id(),
                             egui::vec2(160.0, 160.0),
                         );
-
-                        println!("{} - labels", image.labels.join(","));
 
                         let resp = ui
                             .add(

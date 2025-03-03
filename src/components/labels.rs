@@ -77,8 +77,6 @@ impl Labeler {
     }
 
     fn label_image(&mut self, file: String) {
-        println!("{:?} - file with label", file);
-
         if let Some(img) = img_path_to_base64(file.clone()) {
             if let Some(vision_model) = self.get_vision_model() {
                 let prompt =
