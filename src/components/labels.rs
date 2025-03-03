@@ -1,9 +1,4 @@
-use std::path::PathBuf;
-
-use crate::{
-    enums::{ImageBase64Search, ImageStructured},
-    utils::img_path_to_base64,
-};
+use crate::{enums::ImageBase64Search, utils::img_path_to_base64};
 use ollama_rs::{
     generation::{completion::request::GenerationRequest, options::GenerationOptions},
     Ollama,
@@ -11,11 +6,7 @@ use ollama_rs::{
 use tokio::sync::mpsc::UnboundedSender;
 
 use super::Component;
-use crate::{
-    app_state::AppState,
-    enums::{BroadcastMsg, DirectoryFiles, DirectoryImage, DirectoryImages, FileWithLabel},
-    utils::search_images_at_path,
-};
+use crate::{app_state::AppState, enums::BroadcastMsg};
 use std::sync::{Arc, Mutex};
 
 pub struct Labeler {
@@ -66,6 +57,7 @@ impl Labeler {
     }
 
     fn finished_image_search(&mut self) {
+        println!("FINISHED LABELING ---");
         if let Some(action_tx) = self.action_tx.clone() {
             let _ = action_tx.send(BroadcastMsg::FinishLabeling);
         }
@@ -90,7 +82,8 @@ impl Labeler {
         if let Some(img) = img_path_to_base64(file.clone()) {
             if let Some(vision_model) = self.get_vision_model() {
                 let prompt =
-                    "Give me all labels that could be found on this pictures. Return only labels strings separated with comma."
+                    // "Give me all labels that could be found on this pictures. Return only labels strings separated with comma."
+                    "List the main objects or elements in this image as simple labels, separated by commas."
                         .to_string();
                 self.msg_to_vision(file, vision_model, prompt, img);
             } else {
@@ -132,9 +125,7 @@ impl Component for Labeler {
         self
     }
 
-    // fn update_ctx(&mut self, msg: BroadcastMsg, ctx: &egui::Context) {
     fn update(&mut self, msg: BroadcastMsg) {
-        // ctx.request_repaint_after_secs(1.0);
         match msg {
             BroadcastMsg::StartLabeling => {
                 self.start_labeling();

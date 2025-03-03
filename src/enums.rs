@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 
 use egui::TextureHandle;
-use image::DynamicImage;
-use ollama_rs::generation::{chat::ChatMessage, images::Image};
+use ollama_rs::generation::images::Image;
 use schemars::JsonSchema;
 use serde::Deserialize;
 
@@ -40,11 +39,6 @@ pub struct ImageStructured {
     pub path: String,
     pub name: String,
     pub extension: String,
-}
-
-#[derive(JsonSchema, Deserialize, Debug, Clone)]
-pub struct ImagesStructured {
-    pub images: Vec<ImageStructured>,
 }
 
 #[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
@@ -94,13 +88,8 @@ pub enum BroadcastMsg {
     DirectoryFiles(PathBuf, Vec<String>),
     DirectoryImages(DirectoryImages),
 
+    // -- labeling
     StartLabeling,
     GetLabelsForImage(String, String),
     FinishLabeling,
-    // GetFoundImages(ImagesStructured),
-    // GetDescriptionImageSearch(String, ChatMessage),
-    //
-    // GetRephraseImageSearchPrompt(String),
-    // GetVisionSeachResult(String, String, ImageBase64Search),
-    // FinishedImageSearch,
 }
