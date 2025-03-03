@@ -63,6 +63,7 @@ impl FileLoader {
             let texture = ctx.load_texture(file.file.to_string(), img, TextureOptions::default());
             let dir_img = DirectoryImage {
                 file: file.file.to_string(),
+                labels: file.labels.clone(),
                 texture,
             };
 

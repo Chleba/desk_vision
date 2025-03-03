@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use super::ollama_settings::OllamaSettings;
 use super::Component;
 use crate::{app_state::AppState, enums::BroadcastMsg};
-use egui::{Align, Color32, Grid, RichText, ScrollArea};
+use egui::{Align, CollapsingHeader, Color32, Grid, RichText, ScrollArea};
 use tokio::sync::mpsc::UnboundedSender;
 
 pub struct TopPanel {
@@ -66,11 +66,12 @@ impl TopPanel {
                 let resp = ui.add(
                     egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
                 );
-                if resp.has_focus()
-                    && ui.input(|i| i.key_pressed(egui::Key::Enter) && i.modifiers.is_none())
-                {
-                    // self.send_user_msg(self.input_text.clone());
-                    // self.input_text = String::new();
+                if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                    println!("PRESS SAERCH PICO");
+                    if let Some(action_tx) = self.action_tx.clone() {
+                        let _ =
+                            action_tx.send(BroadcastMsg::SearchByLabels(self.input_text.clone()));
+                    }
                 }
 
                 ui.end_row();
@@ -84,24 +85,44 @@ impl TopPanel {
                 }
             });
 
-            ui.label("Added directories:");
-            ScrollArea::vertical().max_width(420.0).show(ui, |ui| {
-                Grid::new("dir_grid")
-                    .striped(true)
-                    .num_columns(2)
-                    .min_col_width(50.0)
-                    .max_col_width(340.0)
-                    .show(ui, |ui| {
-                        for dir in self.picked_directories.clone().iter() {
-                            ui.small(dir.to_string_lossy());
-                            if ui.button("delete").clicked() {
-                                self.remove_directory(dir.clone());
-                                println!("delete: {}", dir.to_string_lossy());
+            CollapsingHeader::new("Added directories:").show(ui, |ui| {
+                ScrollArea::vertical().max_width(420.0).show(ui, |ui| {
+                    Grid::new("dir_grid")
+                        .striped(true)
+                        .num_columns(2)
+                        .min_col_width(50.0)
+                        .max_col_width(340.0)
+                        .show(ui, |ui| {
+                            for dir in self.picked_directories.clone().iter() {
+                                ui.small(dir.to_string_lossy());
+                                if ui.button("delete").clicked() {
+                                    self.remove_directory(dir.clone());
+                                    println!("delete: {}", dir.to_string_lossy());
+                                }
+                                ui.end_row();
                             }
-                            ui.end_row();
-                        }
-                    });
+                        });
+                });
             });
+
+            // ui.label("");
+            // ScrollArea::vertical().max_width(420.0).show(ui, |ui| {
+            //     Grid::new("dir_grid")
+            //         .striped(true)
+            //         .num_columns(2)
+            //         .min_col_width(50.0)
+            //         .max_col_width(340.0)
+            //         .show(ui, |ui| {
+            //             for dir in self.picked_directories.clone().iter() {
+            //                 ui.small(dir.to_string_lossy());
+            //                 if ui.button("delete").clicked() {
+            //                     self.remove_directory(dir.clone());
+            //                     println!("delete: {}", dir.to_string_lossy());
+            //                 }
+            //                 ui.end_row();
+            //             }
+            //         });
+            // });
         });
     }
 

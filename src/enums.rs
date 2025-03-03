@@ -57,6 +57,7 @@ pub struct FileWithLabel {
 #[derive(Clone)]
 pub struct DirectoryImage {
     pub file: String,
+    pub labels: Vec<String>,
     pub texture: TextureHandle,
 }
 
@@ -92,4 +93,7 @@ pub enum BroadcastMsg {
     StartLabeling,
     GetLabelsForImage(String, String),
     FinishLabeling,
+
+    // -- searching
+    SearchByLabels(String),
 }

@@ -24,7 +24,7 @@ impl AppState {
         // -- get storage values
         if let Some(storage) = cc.storage {
             let s = eframe::get_value(storage, APP_STATE_KEY).unwrap_or_default();
-            // println!("{:?}", s);
+            println!("{:?}", s);
             return s;
         }
 
