@@ -7,7 +7,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use super::Component;
 use crate::{
     app_state::AppState,
-    enums::{BroadcastMsg, DirectoryFiles, DirectoryImage, DirectoryImages},
+    enums::{BroadcastMsg, DirectoryFiles, DirectoryImage, DirectoryImages, FileWithLabel},
     utils::search_images_at_path,
 };
 use std::sync::{Arc, Mutex};
@@ -40,11 +40,11 @@ impl FileLoader {
 
     fn create_thumbnails(&mut self, dir_files: &DirectoryFiles, ctx: egui::Context) {
         let path = PathBuf::from(dir_files.dir.clone());
-        let files = dir_files.files.clone();
+        let files = dir_files.files_with_labels.clone();
 
         let mut dir_imgs = vec![];
         for file in files.iter() {
-            let thumb = ImageReader::open(file)
+            let thumb = ImageReader::open(file.file.clone())
                 .unwrap()
                 .with_guessed_format()
                 .unwrap()
@@ -60,9 +60,9 @@ impl FileLoader {
                 rgba.as_raw(),
             );
 
-            let texture = ctx.load_texture(file, img, TextureOptions::default());
+            let texture = ctx.load_texture(file.file.to_string(), img, TextureOptions::default());
             let dir_img = DirectoryImage {
-                file: file.to_string(),
+                file: file.file.to_string(),
                 texture,
             };
 
@@ -85,11 +85,20 @@ impl FileLoader {
             let _ = action_tx.send(BroadcastMsg::DirectoryFiles(path.clone(), files.clone()));
         }
 
+        let mut d_files = vec![];
+        for f in files.iter() {
+            d_files.push(FileWithLabel {
+                file: f.to_string(),
+                labels: vec![],
+            });
+        }
+
         self.create_thumbnails(
             &DirectoryFiles {
                 dir: path.to_string_lossy().to_string(),
-                files,
-                files_with_labels: vec![],
+                files_with_labels: d_files,
+                // files,
+                // files_with_labels: vec![],
             },
             ctx.clone(),
         );

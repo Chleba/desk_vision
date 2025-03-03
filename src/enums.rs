@@ -44,7 +44,7 @@ pub struct ImageStructured {
 #[derive(serde::Deserialize, Default, serde::Serialize, Debug, Clone)]
 pub struct DirectoryFiles {
     pub dir: String,
-    pub files: Vec<String>,
+    // pub files: Vec<String>,
     pub files_with_labels: Vec<FileWithLabel>,
 }
 

@@ -36,9 +36,9 @@ impl Labeler {
         // -- get all files that is having no labels
         let mut all_files = vec![];
         for dir in dir_files.iter() {
-            for file in dir.files.iter() {
-                if !dir.files_with_labels.iter().any(|item| &item.file == file) {
-                    all_files.push(file.to_string());
+            for file in dir.files_with_labels.iter() {
+                if file.labels.is_empty() {
+                    all_files.push(file.file.to_string());
                 }
             }
         }
