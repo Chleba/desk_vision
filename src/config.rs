@@ -1,5 +1,9 @@
 pub const SUPPORTED_IMAGE_FORMATS: [&str; 3] = ["png", "jpg", "jpeg"];
 
+// pub const IMG_LABEL_PROMPT: &str = "List the main objects or elements in this image as very simple labels (use maximum 2.words for a label) separated by commas. Never return more then five labels.";
+// pub const IMG_LABEL_PROMPT: &str = "List up to 5 main objects or elements in this image as simple labels, separated by commas. Do not list more than 5.";
+pub const IMG_LABEL_PROMPT: &str = "List up to 5 main objects or elements in this image as simple labels, each 2-3 words max, separated by commas. Do not include 'and', '...', or extra text.";
+
 // const COLORS_SIGNAL: [Color; 7] = [
 //     Color::Red,
 //     Color::LightRed,

@@ -1,4 +1,4 @@
-use crate::{enums::ImageBase64Search, utils::img_path_to_base64};
+use crate::{config::IMG_LABEL_PROMPT, enums::ImageBase64Search, utils::img_path_to_base64};
 use ollama_rs::{
     generation::{completion::request::GenerationRequest, options::GenerationOptions},
     Ollama,
@@ -77,13 +77,10 @@ impl Labeler {
     }
 
     fn label_image(&mut self, file: String) {
+        println!("> start labeling img: {}", file);
         if let Some(img) = img_path_to_base64(file.clone()) {
             if let Some(vision_model) = self.get_vision_model() {
-                let prompt =
-                    // "Give me all labels that could be found on this pictures. Return only labels strings separated with comma."
-                    "List the main objects or elements in this image as simple labels, separated by commas."
-                        .to_string();
-                self.msg_to_vision(file, vision_model, prompt, img);
+                self.msg_to_vision(file, vision_model, IMG_LABEL_PROMPT.to_string(), img);
             } else {
                 println!("NO VISION MODEL FOUND");
             }
@@ -97,6 +94,7 @@ impl Labeler {
         prompt: String,
         img: ImageBase64Search,
     ) {
+        println!("> send img to vision: {}", file);
         let (url, port) = self.get_ollama_url(self.app_state.clone());
         let ollama = Ollama::new(url, port);
         if let Some(action_tx) = self.action_tx.clone() {
