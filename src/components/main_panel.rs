@@ -41,6 +41,21 @@ impl MainPanel {
         self.dir_images.retain(|p| p.dir != path);
     }
 
+    fn add_labels_to_file(&mut self, file: String, labels: String) {
+        let l_labels: Vec<String> = labels
+            .split(',')
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(String::from)
+            .collect();
+
+        for dir in self.dir_images.iter_mut() {
+            if let Some(f_file) = dir.images.iter_mut().find(|f| f.file == file) {
+                f_file.labels = l_labels.clone();
+            }
+        }
+    }
+
     fn search_by_labels(&mut self, labels: String) {
         println!("SERACH BY LABELS: {:?}", labels);
 
@@ -155,6 +170,9 @@ impl Component for MainPanel {
             }
             BroadcastMsg::SearchByLabels(labels) => {
                 self.search_by_labels(labels);
+            }
+            BroadcastMsg::GetLabelsForImage(file, labels) => {
+                self.add_labels_to_file(file, labels);
             }
             _ => {}
         }
