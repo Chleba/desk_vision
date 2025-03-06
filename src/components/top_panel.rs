@@ -16,6 +16,7 @@ pub struct TopPanel {
     ollama_connected: bool,
     non_labeled_imgs: usize,
     all_imgs_num: usize,
+    is_labeling: bool,
 }
 
 impl TopPanel {
@@ -29,6 +30,7 @@ impl TopPanel {
             ollama_button: OllamaSettings::new(),
             non_labeled_imgs: 0,
             all_imgs_num: 0,
+            is_labeling: false,
         }
     }
 
@@ -167,39 +169,28 @@ impl TopPanel {
         });
 
         let labeled_imgs = self.all_imgs_num - self.non_labeled_imgs;
-        if self.all_imgs_num == labeled_imgs {
-            ui.label(RichText::new("all labels done").color(Color32::from_rgb(0, 255, 255)));
-        } else {
-            ui.label(format!(
-                "{}/{} images labeled",
-                labeled_imgs, self.all_imgs_num
-            ));
-        }
-
-        if ui.button("Start labeling").clicked() {
-            if let Some(action_tx) = self.action_tx.clone() {
-                let _ = action_tx.send(BroadcastMsg::StartLabeling);
+        ui.horizontal(|ui| {
+            if self.all_imgs_num == labeled_imgs {
+                ui.label(RichText::new("all done").color(Color32::from_rgb(0, 255, 255)));
+            } else {
+                if self.is_labeling {
+                    ui.spinner();
+                    if ui.button("stop").clicked() {
+                        if let Some(action_tx) = self.action_tx.clone() {
+                            let _ = action_tx.send(BroadcastMsg::StopLabeling);
+                        }
+                    }
+                } else {
+                    if ui.button("start").clicked() {
+                        if let Some(action_tx) = self.action_tx.clone() {
+                            let _ = action_tx.send(BroadcastMsg::StartLabeling);
+                        }
+                    }
+                }
+                ui.label(format!("{}/{}", labeled_imgs, self.all_imgs_num));
             }
-        }
-
-        // // ui.vertical(|ui| {
-        // let half_w = ui.available_width() / 2.0;
-        // egui::Grid::new("right_grid")
-        //     // .max_col_width(half_w / 2.0)
-        //     .num_columns(2)
-        //     .show(ui, |ui| {
-        //         ui.label(" - ");
-        //         ui.label("Searching for images");
-        //
-        //         ui.end_row();
-        //
-        //         ui.label(" - ");
-        //         ui.label("Labeling images");
-        //     });
-        // // });
-
-        // ui.label("- Searching for images");
-        // ui.label("- Labeling images");
+            ui.label("labels:");
+        });
     }
 }
 
@@ -218,6 +209,12 @@ impl Component for TopPanel {
 
         match msg {
             BroadcastMsg::OllamaRunning(r) => self.ollama_connected = r.is_ok(),
+            BroadcastMsg::StartLabeling => {
+                self.is_labeling = true;
+            }
+            BroadcastMsg::StopLabeling => {
+                self.is_labeling = false;
+            }
             BroadcastMsg::DirectoryImages(_) => {
                 self.get_labeled_images();
             }

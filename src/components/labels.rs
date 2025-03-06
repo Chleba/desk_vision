@@ -13,6 +13,7 @@ pub struct Labeler {
     action_tx: Option<UnboundedSender<BroadcastMsg>>,
     app_state: Option<Arc<Mutex<AppState>>>,
     files_to_label: Vec<String>,
+    is_labeling: bool,
 }
 
 impl Labeler {
@@ -21,6 +22,7 @@ impl Labeler {
             action_tx: None,
             app_state: None,
             files_to_label: vec![],
+            is_labeling: false,
         }
     }
 
@@ -49,6 +51,9 @@ impl Labeler {
     }
 
     fn next_vision_search(&mut self) {
+        if !self.is_labeling {
+            return;
+        }
         if let Some(img) = self.files_to_label.pop() {
             self.label_image(img);
         } else {
@@ -58,6 +63,7 @@ impl Labeler {
 
     fn finished_image_search(&mut self) {
         println!("FINISHED LABELING ---");
+        self.is_labeling = false;
         if let Some(action_tx) = self.action_tx.clone() {
             let _ = action_tx.send(BroadcastMsg::FinishLabeling);
         }
@@ -124,8 +130,14 @@ impl Component for Labeler {
     fn update(&mut self, msg: BroadcastMsg) {
         match msg {
             BroadcastMsg::StartLabeling => {
+                self.is_labeling = true;
                 self.start_labeling();
             }
+
+            BroadcastMsg::StopLabeling => {
+                self.is_labeling = false;
+            }
+
             BroadcastMsg::GetLabelsForImage(_file, _labels) => {
                 self.next_vision_search();
             }

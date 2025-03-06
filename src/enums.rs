@@ -91,6 +91,7 @@ pub enum BroadcastMsg {
 
     // -- labeling
     StartLabeling,
+    StopLabeling,
     GetLabelsForImage(String, String),
     FinishLabeling,
 
