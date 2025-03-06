@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use egui::TextureOptions;
 use image::ImageReader;
@@ -42,32 +45,75 @@ impl FileLoader {
         let path = PathBuf::from(dir_files.dir.clone());
         let files = dir_files.files_with_labels.clone();
 
+        let mut thumbs_has_dir = false;
+        let mut thumbnails_dir = "".to_string();
+        if let Some(data_dirs) = directories::UserDirs::new() {
+            thumbnails_dir = format!("{}/deskvision", data_dirs.home_dir().to_string_lossy());
+            if let Ok(thumb_dir_done) = fs::create_dir_all(thumbnails_dir.clone()) {
+                thumbs_has_dir = true;
+            }
+        }
+
         let mut dir_imgs = vec![];
         for file in files.iter() {
-            let thumb = ImageReader::open(file.file.clone())
+            let mut img_file_path = file.file.clone();
+
+            if thumbs_has_dir {
+                let thumb_file = Path::new(&file.file)
+                    .file_name()
+                    .and_then(|f| f.to_str())
+                    .unwrap_or("unknown");
+                let thumb_path = format!("{}/{}", thumbnails_dir, thumb_file);
+                if Path::new(&thumb_path).exists() {
+                    img_file_path = thumb_path.to_string();
+                }
+            }
+
+            println!(">THUMBING IMG FILE: {}", img_file_path);
+
+            if let Ok(thumb_decode) = ImageReader::open(img_file_path.clone())
                 .unwrap()
                 .with_guessed_format()
                 .unwrap()
                 .decode()
-                .unwrap()
-                .thumbnail(160, 160);
+            {
+                let thumb = thumb_decode.thumbnail(160, 160);
 
-            println!("{} - {} = img w,h", thumb.width(), thumb.height());
+                if thumbs_has_dir && file.file.clone() == img_file_path {
+                    let thumb_file = Path::new(&file.file)
+                        .file_name()
+                        .and_then(|f| f.to_str())
+                        .unwrap_or("unknown");
+                    let thumb_path = format!("{}/{}", thumbnails_dir, thumb_file);
+                    println!("{:?} - THUMBS DIR PATH FILE", thumb_path);
+                    match thumb.save(thumb_path) {
+                        Ok(ok_thumb) => {
+                            println!("{:?}", ok_thumb);
+                        }
+                        Err(err) => {
+                            println!("{:?}", err);
+                        }
+                    }
+                }
 
-            let rgba = thumb.to_rgba8();
-            let img = egui::ColorImage::from_rgba_unmultiplied(
-                [thumb.width() as usize, thumb.height() as usize],
-                rgba.as_raw(),
-            );
+                println!("{} - {} = img w,h", thumb.width(), thumb.height());
 
-            let texture = ctx.load_texture(file.file.to_string(), img, TextureOptions::default());
-            let dir_img = DirectoryImage {
-                file: file.file.to_string(),
-                labels: file.labels.clone(),
-                texture,
-            };
+                let rgba = thumb.to_rgba8();
+                let img = egui::ColorImage::from_rgba_unmultiplied(
+                    [thumb.width() as usize, thumb.height() as usize],
+                    rgba.as_raw(),
+                );
 
-            dir_imgs.push(dir_img);
+                let texture =
+                    ctx.load_texture(file.file.to_string(), img, TextureOptions::default());
+                let dir_img = DirectoryImage {
+                    file: file.file.to_string(),
+                    labels: file.labels.clone(),
+                    texture,
+                };
+
+                dir_imgs.push(dir_img);
+            }
         }
 
         let dir_obj = DirectoryImages {
@@ -98,8 +144,6 @@ impl FileLoader {
             &DirectoryFiles {
                 dir: path.to_string_lossy().to_string(),
                 files_with_labels: d_files,
-                // files,
-                // files_with_labels: vec![],
             },
             ctx.clone(),
         );

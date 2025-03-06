@@ -44,7 +44,6 @@ impl DeskApp {
     }
 
     pub fn init(&mut self, cc: &eframe::CreationContext<'_>) {
-        // self.init_components(cc);
         self.register_tx();
         self.register_app_state();
         {

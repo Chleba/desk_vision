@@ -33,7 +33,7 @@ impl Labeler {
             }
         }
 
-        // -- get all files that is having no labels
+        // -- get all files that is not having labels
         let mut all_files = vec![];
         for dir in dir_files.iter() {
             for file in dir.files_with_labels.iter() {

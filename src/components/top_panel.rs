@@ -14,6 +14,8 @@ pub struct TopPanel {
     app_state: Option<Arc<Mutex<AppState>>>,
     ollama_button: OllamaSettings,
     ollama_connected: bool,
+    non_labeled_imgs: usize,
+    all_imgs_num: usize,
 }
 
 impl TopPanel {
@@ -25,7 +27,32 @@ impl TopPanel {
             app_state: None,
             ollama_connected: false,
             ollama_button: OllamaSettings::new(),
+            non_labeled_imgs: 0,
+            all_imgs_num: 0,
         }
+    }
+
+    fn get_labeled_images(&mut self) {
+        let mut dir_files = vec![];
+        {
+            if let Some(ref app_state) = self.app_state {
+                dir_files = app_state.lock().unwrap().dir_files.clone();
+            }
+        }
+
+        // -- get all files that is not having labels
+        let mut non_labeled_imgs = 0;
+        let mut all_imgs_num = 0;
+        for dir in dir_files.iter() {
+            all_imgs_num += dir.files_with_labels.len();
+            for file in dir.files_with_labels.iter() {
+                if file.labels.is_empty() {
+                    non_labeled_imgs += 1;
+                }
+            }
+        }
+        self.non_labeled_imgs = non_labeled_imgs;
+        self.all_imgs_num = all_imgs_num;
     }
 
     fn pick_dir(&mut self, path: PathBuf) {
@@ -139,6 +166,16 @@ impl TopPanel {
             });
         });
 
+        let labeled_imgs = self.all_imgs_num - self.non_labeled_imgs;
+        if self.all_imgs_num == labeled_imgs {
+            ui.label(RichText::new("all labels done").color(Color32::from_rgb(0, 255, 255)));
+        } else {
+            ui.label(format!(
+                "{}/{} images labeled",
+                labeled_imgs, self.all_imgs_num
+            ));
+        }
+
         if ui.button("Start labeling").clicked() {
             if let Some(action_tx) = self.action_tx.clone() {
                 let _ = action_tx.send(BroadcastMsg::StartLabeling);
@@ -173,13 +210,24 @@ impl Component for TopPanel {
 
     fn init(&mut self, cc: &eframe::CreationContext<'_>) {
         self.ollama_button.init(cc);
+        self.get_labeled_images();
     }
 
     fn update(&mut self, msg: BroadcastMsg) {
         self.ollama_button.update(msg.clone());
 
-        if let BroadcastMsg::OllamaRunning(r) = msg {
-            self.ollama_connected = r.is_ok()
+        match msg {
+            BroadcastMsg::OllamaRunning(r) => self.ollama_connected = r.is_ok(),
+            BroadcastMsg::DirectoryImages(_) => {
+                self.get_labeled_images();
+            }
+            BroadcastMsg::RemovedDirectory(_) => {
+                self.get_labeled_images();
+            }
+            BroadcastMsg::GetLabelsForImage(_, _) => {
+                self.get_labeled_images();
+            }
+            _ => {}
         }
     }
 
