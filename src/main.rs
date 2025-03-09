@@ -38,6 +38,8 @@ async fn main() {
         Box::new(|cc| {
             // -- image loader
             egui_extras::install_image_loaders(&cc.egui_ctx);
+            // -- material icons
+            egui_material_icons::initialize(&cc.egui_ctx);
 
             // -- app
             let mut desk_app = desk_imager::DeskApp::new(cc);

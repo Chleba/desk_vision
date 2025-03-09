@@ -119,34 +119,36 @@ impl Component for OllamaSettings {
                         });
                     });
 
-                ui.label("Models:");
-                for model in &self.models {
-                    CollapsingHeader::new(model.name.clone())
-                        .default_open(false)
-                        .show(ui, |ui| {
-                            egui::Grid::new("model info:")
-                                .num_columns(2)
-                                .striped(true)
-                                .spacing(Vec2 { x: 4.0, y: 0.0 })
-                                .show(ui, |ui| {
-                                    ui.small("model:");
-                                    ui.small(model.model.clone());
-                                    ui.end_row();
+                CollapsingHeader::new("Models:").show(ui, |ui| {
+                    // ui.label("Models:");
+                    for model in &self.models {
+                        CollapsingHeader::new(model.name.clone())
+                            .default_open(false)
+                            .show(ui, |ui| {
+                                egui::Grid::new("model info:")
+                                    .num_columns(2)
+                                    .striped(true)
+                                    .spacing(Vec2 { x: 4.0, y: 0.0 })
+                                    .show(ui, |ui| {
+                                        ui.small("model:");
+                                        ui.small(model.model.clone());
+                                        ui.end_row();
 
-                                    ui.small("size:");
-                                    ui.small(bytes_convert(model.size as f64));
-                                    ui.end_row();
+                                        ui.small("size:");
+                                        ui.small(bytes_convert(model.size as f64));
+                                        ui.end_row();
 
-                                    ui.small("parameters:");
-                                    ui.small(model.details.parameter_size.clone());
-                                    ui.end_row();
+                                        ui.small("parameters:");
+                                        ui.small(model.details.parameter_size.clone());
+                                        ui.end_row();
 
-                                    ui.small("quantization:");
-                                    ui.small(model.details.quantization_level.clone());
-                                    ui.end_row();
-                                });
-                        });
-                }
+                                        ui.small("quantization:");
+                                        ui.small(model.details.quantization_level.clone());
+                                        ui.end_row();
+                                    });
+                            });
+                    }
+                });
             },
         );
     }

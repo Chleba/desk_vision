@@ -11,23 +11,23 @@ all-features = true
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-egui = "0.30"
-eframe = { version = "0.30", default-features = false, features = ["default_fonts", "glow", "persistence", "wayland", "x11"] }
+egui = "0.31.1"
+eframe = { version = "0.31.1", default-features = false, features = ["default_fonts", "glow", "persistence", "wayland", "x11"] }
 log = "0.4"
 
 serde = { version = "1", features = ["derive"] }
 
 env_logger = "0.11"
-egui_extras = { version = "0.30.0", features = ["all_loaders"] }
+egui_extras = { version = "0.31.1", features = ["all_loaders"] }
 image = "0.25.5"
 reqwest = { version = "0.12.12", features = ["json"] }
-egui_form = { version = "0.4.0", features = ["validator_garde"] }
-garde = { version = "0.20.0", features = ["derive", "email", "url"] }
-egui_flex = "0.2.0"
+egui_form = { version = "0.5.0", features = ["validator_garde"] }
+garde = { version = "0.22.0", features = ["derive", "email", "url"] }
+egui_flex = "0.3.0"
 tokio = { version = "1.43.0", features = ["full"] }
 futures = "0.3.31"
 unicode-segmentation = "1.12.0"
-egui_infinite_scroll = "0.6.0"
+egui_infinite_scroll = "0.7.0"
 ollama-rs = { version = "0.2.6", features = ["calc", "http", "macros", "ollama-rs-macros", "tokio", "tokio-stream", "tool-implementations"] }
 schemars = { version = "0.8.21", features = ["preserve_order"] }
 serde_json = "1.0.138"
@@ -36,6 +36,7 @@ base64 = "0.22.1"
 open = "5.3.2"
 rfd = "0.15.2"
 directories = "6.0.0"
+egui_material_icons = "0.3.0"
 
 [profile.release]
 opt-level = 2

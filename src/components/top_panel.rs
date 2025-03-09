@@ -96,7 +96,6 @@ impl TopPanel {
                     egui::TextEdit::singleline(&mut self.input_text).hint_text("Search here.."),
                 );
                 if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
-                    println!("PRESS SAERCH PICO");
                     if let Some(action_tx) = self.action_tx.clone() {
                         let _ =
                             action_tx.send(BroadcastMsg::SearchByLabels(self.input_text.clone()));

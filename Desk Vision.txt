@@ -1,0 +1,31 @@
+Desk Vision App
+
+Vyhledavani obrazku v lokalnim pocitaci vyuzitim lokalniho vision modelu za pomoci Ollama.
+
+FEATURES:
+- nativni aplikace pro Windows, MacOS a Linux
+- velmi rychle vyhledavani souboru na disku (rust)
+- moznost se pripojit jak na lokalni Ollama server tak i na jakekoliv URL jineho Ollama serveru
+- vytvareni thumbnailu pro rychlesi a hlavne optimalizovany beh aplikace
+    - CPU (2% - bez ollamy, 100-400MB RAM)
+- vytvareni labelu / popisku obrazku a ukladani do pameti pro rychlejsi zobrazovani
+- pridavani ruznych slozek pro vyhledavani/zobrazovani a labelovani obrazku
+
+TODO:
+
+- filtrovani formatu souboru/obrazku
+- vyhledavani ve specifickem adresari
+- reverzni hledani obrazku (hledani podle obrazku)
+- reverzni hledani obrazku ve specifickem adresari
+- editace/manualni vytvareni labelu pro dany obrazek
+- Drag&Drop slozek do appky
+- vytvareni thumbnailu ve vlastnim threadu
+- lepsi UI, zobrazovani obrazku, ...
+- zobrazeni vetsiho obrazku/open
+- nastaveni velikosti fontu
+- nastaveni systemMsg/promptu pro labelovani
+- vytvoreni agenta pro specificke hledani obrazku v adresari (uprava promptu pro vision model)
+- ollama settings moznost pullnout nabizene vision modely (UI)
+- selectovani/mazani/kopirovani/presun obrazku
+- crop obrazku pro reverzni hledani obrazku
+- pridani podporu custom agentu pro automaticne hledani/mazani/presouvani obrazku

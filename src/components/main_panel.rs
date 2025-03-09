@@ -5,6 +5,7 @@ use crate::{
 };
 use egui::{CollapsingHeader, Color32, ScrollArea, Sense, Vec2};
 use std::{
+    collections::HashMap,
     path::PathBuf,
     sync::{Arc, Mutex},
 };
@@ -15,6 +16,7 @@ pub struct MainPanel {
     app_state: Option<Arc<Mutex<AppState>>>,
     dir_images: Vec<DirectoryImages>,
     found_images: Vec<DirectoryImage>,
+    search_inputs: HashMap<String, String>,
 }
 
 impl MainPanel {
@@ -24,6 +26,7 @@ impl MainPanel {
             app_state: None,
             dir_images: vec![],
             found_images: vec![],
+            search_inputs: HashMap::new(),
         }
     }
 
@@ -33,7 +36,11 @@ impl MainPanel {
             .iter()
             .all(|item| item.dir != dir_images.dir)
         {
-            self.dir_images.push(dir_images);
+            self.dir_images.push(dir_images.clone());
+
+            // -- save to search hashmap
+            self.search_inputs
+                .insert(dir_images.dir.to_string_lossy().to_string(), "".to_string());
         }
     }
 
@@ -126,6 +133,16 @@ impl MainPanel {
     fn render_dir_images(&mut self, dir: DirectoryImages, ui: &mut egui::Ui) {
         let path_title = format!("{} ({})", dir.dir.to_string_lossy(), dir.images.len());
         CollapsingHeader::new(path_title).show(ui, |ui| {
+            let dir_string = dir.dir.to_string_lossy().to_string();
+            let resp = ui.add(
+                egui::TextEdit::singleline(self.search_inputs.get_mut(&dir_string).unwrap())
+                    .hint_text("Search here.."),
+            );
+            if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                if let Some(action_tx) = self.action_tx.clone() {
+                    // let _ = action_tx.send(BroadcastMsg::SearchByLabels(self.input_text.clone()));
+                }
+            }
             ui.horizontal_wrapped(|ui| {
                 for image in dir.images {
                     let s_text =
