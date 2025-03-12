@@ -1,2 +1,2 @@
-# DeskImager
-Local AI vision Image searching App
+# DeskVision
+Local AI cross platform vision Image searching App using Ollama
